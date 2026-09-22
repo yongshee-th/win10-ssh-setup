@@ -29,13 +29,13 @@ powershell -NoProfile -Command "if (-not (Get-NetFirewallRule -Name sshd -ErrorA
 REM ===== [4] ใส่ public key ให้อัตโนมัติ (ตรวจว่า user เป็น admin หรือไม่) =====
 echo [4/5] กำลังติดตั้ง SSH public key สำหรับ user: %USERNAME%
 
-set "PUBKEY=ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILNKYm6vXFOwSGEMjKT2IMWUcEX+1ubNxyUJkJh3kyok yongshee007@nitro -> lemon-pi"
+set "PUBKEY=ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILNKYm6vXFOwSGEMjKT2IMWUcEX+1ubNxyUJkJh3kyok yongshee007-nitro-lemon-pi"
 
 whoami /groups | find "S-1-5-32-544" >nul
 if %errorLevel% == 0 (
     echo    (user นี้เป็น Administrator - ใช้ administrators_authorized_keys^)
     if not exist "C:\ProgramData\ssh" mkdir "C:\ProgramData\ssh"
-    > "C:\ProgramData\ssh\administrators_authorized_keys" echo %PUBKEY%
+    powershell -NoProfile -Command "Set-Content -Path 'C:\ProgramData\ssh\administrators_authorized_keys' -Value '%PUBKEY%' -Encoding ascii -NoNewline"
     icacls "C:\ProgramData\ssh\administrators_authorized_keys" /inheritance:r >nul
     icacls "C:\ProgramData\ssh\administrators_authorized_keys" /grant SYSTEM:F >nul
     icacls "C:\ProgramData\ssh\administrators_authorized_keys" /grant Administrators:F >nul
@@ -43,7 +43,7 @@ if %errorLevel% == 0 (
     net start sshd >nul
 ) else (
     if not exist "%USERPROFILE%\.ssh" mkdir "%USERPROFILE%\.ssh"
-    > "%USERPROFILE%\.ssh\authorized_keys" echo %PUBKEY%
+    powershell -NoProfile -Command "Set-Content -Path '%USERPROFILE%\.ssh\authorized_keys' -Value '%PUBKEY%' -Encoding ascii -NoNewline"
 )
 
 echo [5/5] เสร็จสิ้น! กำลังดึง IP address...
